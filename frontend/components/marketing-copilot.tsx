@@ -9,6 +9,7 @@ import {
   type AnalyticsSnapshot,
   type DatasetInfo
 } from "@/lib/marketing-analytics";
+import { MarkdownRenderer, InterpretationCard, extractInterpretationSections } from "@/components/markdown-renderer";
 
 type ChatMessage = {
   role: "user" | "copilot";
@@ -242,14 +243,25 @@ export function MarketingCopilot() {
           </div>
 
           <div className="chat-box">
-            {chat.map((message, index) => (
-              <article
-                key={`${message.role}-${index}`}
-                className={`message ${message.role === "user" ? "message-user" : "message-copilot"}`}
-              >
-                {message.text}
-              </article>
-            ))}
+            {chat.map((message, index) => {
+              const sections = extractInterpretationSections(message.text);
+              return (
+                <article
+                  key={`${message.role}-${index}`}
+                  className={`message ${message.role === "user" ? "message-user" : "message-copilot"}`}
+                >
+                  {message.role === "copilot" ? (
+                    <InterpretationCard
+                      interpretation={sections.interpretation}
+                      recommendation={sections.recommendation}
+                      rawText={message.text}
+                    />
+                  ) : (
+                    <MarkdownRenderer text={message.text} />
+                  )}
+                </article>
+              );
+            })}
           </div>
 
           <form className="ask-form" onSubmit={onAsk}>

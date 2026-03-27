@@ -19,6 +19,7 @@ INSIGHTS ADICIONALES:
 import pandas as pd
 import numpy as np
 from typing import Optional
+import re
 
 
 class AnalyticsEngine:
@@ -37,6 +38,79 @@ class AnalyticsEngine:
         cleaned = df.replace([np.inf, -np.inf], np.nan).where(pd.notna(df), None)
         return cleaned.to_dict("records")
 
+    def _humanize_page_name(self, page_url: str) -> str:
+        """
+        Convierte URLs técnicas en nombres amigables para marketing.
+        
+        Ejemplos:
+        - '/curriculum/country-list/...' → 'Currículum - Catálogo de países'
+        - '/pricing' → 'Precios'
+        - '/contact' → 'Contacto'
+        - '/product/python-101' → 'Product: Python 101'
+        """
+        if not page_url or not isinstance(page_url, str):
+            return "Página desconocida"
+        
+        url = page_url.strip().lower()
+        
+        # Extraer información útil de URLs complejas
+        # Si es curriculum detail, extraer el nombre del curso
+        if "curriculum" in url and "detail-grade" in url:
+            # Extraer el último segmento antes de números (grade/course name)
+            match = re.search(r'/detail-grade/\d+/([a-z0-9\-_]+)', url)
+            if match:
+                course = match.group(1).replace('%20', ' ').replace('-', ' ').title()
+                # Extraer país si existe
+                country_match = re.search(r'/tennessee|/california|/florida|/texas|/\w+(?=/)', url)
+                if country_match:
+                    location = country_match.group(0).strip('/').title()
+                    return f"Curso: {course} ({location})"
+                return f"Curso: {course}"
+        
+        # URLs comunes de marketing
+        mappings = {
+            "/pricing": "Precios",
+            "/pricing/": "Precios",
+            "/contact": "Contacto",
+            "/contact/": "Contacto",
+            "/signup": "Registrarse",
+            "/signup/": "Registrarse",
+            "/login": "Iniciar sesión",
+            "/login/": "Iniciar sesión",
+            "/demo": "Demo",
+            "/demo/": "Demo",
+            "/products": "Productos",
+            "/products/": "Productos",
+            "/curriculum": "Currículum",
+            "/curriculum/": "Catálogo de cursos",
+            "/courses": "Cursos",
+            "/courses/": "Cursos",
+            "/home": "Inicio",
+            "/home/": "Inicio",
+            "": "Inicio",
+            "/": "Inicio",
+            "/faq": "Preguntas frecuentes",
+            "/faq/": "Preguntas frecuentes",
+            "/help": "Ayuda",
+            "/help/": "Ayuda",
+        }
+        
+        # Buscar coincidencia exacta o parcial
+        for pattern, label in mappings.items():
+            if url == pattern or url == pattern.rstrip("/"):
+                return label
+        
+        # Si no hay coincidencia, crear un nombre legible
+        # Tomar el primer segmento significativo
+        parts = [p for p in url.split('/') if p and not p.isdigit() and p != 'detail-' and 'id' not in p]
+        if parts:
+            # Tomar el primer 2-3 segmentos útiles
+            readable = " → ".join(p.replace('%20', ' ').replace('-', ' ').title() for p in parts[:3])
+            return readable if len(readable) < 50 else readable[:47] + "..."
+        
+        return page_url[:50] + "..." if len(page_url) > 50 else page_url
+
+
     # ═══════════════════════════════════════════════════════════
     # INSIGHT 1: Páginas y Productos Top
     # ═══════════════════════════════════════════════════════════
@@ -44,7 +118,7 @@ class AnalyticsEngine:
     def get_top_pages(self, limit: int = 10) -> list[dict]:
         """
         Ranking de páginas con mayor número de vistas e interacciones.
-        Retorna: [{page, views, interactions, percentage}]
+        Retorna: [{page, page_name, views, interactions, percentage}]
         """
         if not self._has_column("page"):
             return []
@@ -59,6 +133,9 @@ class AnalyticsEngine:
         total = len(self.df)
         page_views["percentage"] = round(page_views["views"] / total * 100, 2)
         page_views = page_views.sort_values("views", ascending=False).head(limit)
+        
+        # Humanizar nombres de página para marketing
+        page_views["page_name"] = page_views["page"].apply(self._humanize_page_name)
 
         return self._to_safe_records(page_views)
 
@@ -87,15 +164,27 @@ class AnalyticsEngine:
     # INSIGHT 2: Puntos Críticos de Abandono
     # ═══════════════════════════════════════════════════════════
 
-    def get_abandono(self, limit: int = 10) -> list[dict]:
+    def get_abandono(self, limit: int = 10, min_visits: int = 5) -> list[dict]:
         """
-        Calcula tasa de salida por página.
+        Calcula tasa de salida por página (puntos críticos de abandono).
+        
         exit_rate = (sesiones que terminan en esta página / total visitas a la página) * 100
+        
+        FILTRO: Solo incluye páginas con mínimo min_visits visitas para evitar ruido estadístico.
+        Páginas con pocas visitas y 100% abandono NO son puntos críticos - son probablemente
+        landing pages, páginas de error o destinos finales.
         """
         if not self._has_column("page"):
             return []
 
         total_visits = self.df.groupby("page").size().reset_index(name="total_visits")
+        
+        # FILTRO CRÍTICO: Eliminar páginas con muy baja visibilidad
+        # Esto evita que páginas específicas de error/confirmación aparezcan como "problemas"
+        total_visits = total_visits[total_visits["total_visits"] >= min_visits]
+        
+        if total_visits.empty:
+            return []
 
         # Método 1: Si tenemos columna exit_page (booleana)
         if self._has_column("exit_page"):
@@ -119,7 +208,18 @@ class AnalyticsEngine:
         result = total_visits.merge(exits, on="page", how="left")
         result["exit_count"] = result["exit_count"].fillna(0).astype(int)
         result["exit_rate"] = round(result["exit_count"] / result["total_visits"] * 100, 2)
+        
+        # SEGUNDA ESTRATEGIA: Filtra valores > 90% si no hay suficiente volumen
+        # Esto evita falsos positivos de abandono
+        result = result[
+            (result["exit_rate"] < 90) |  # Mantén rates < 90%
+            (result["total_visits"] >= 20)  # O si tienes >= 20 visitas entonces sí incluye
+        ]
+        
         result = result.sort_values("exit_rate", ascending=False).head(limit)
+        
+        # Humanizar nombres de página para marketing
+        result["page_name"] = result["page"].apply(self._humanize_page_name)
 
         return self._to_safe_records(result)
 
@@ -439,7 +539,7 @@ class AnalyticsEngine:
     def answer_question(self, question: str) -> dict:
         """
         Dada una pregunta en texto, determina qué análisis ejecutar
-        y devuelve los datos relevantes + una respuesta base.
+        y devuelve los datos relevantes + una respuesta base amigable.
         """
         q = question.lower()
 
@@ -451,8 +551,8 @@ class AnalyticsEngine:
                 return {
                     "intent": "top_pages",
                     "data": data,
-                    "answer": f"La página más visitada es '{top['page']}' con {top['views']} vistas ({top.get('percentage', 0)}% del total).",
-                    "chart": {"type": "horizontal_bar", "labels": [d["page"] for d in data], "values": [d["views"] for d in data], "label": "Vistas"},
+                    "answer": f"La página más visitada es '{top.get('page_name', top['page'])}' con {top['views']} vistas ({top.get('percentage', 0)}% del total).",
+                    "chart": {"type": "horizontal_bar", "labels": [d.get('page_name', d['page']) for d in data], "values": [d["views"] for d in data], "label": "Vistas"},
                 }
 
         if any(w in q for w in ["producto más", "producto top", "más consultado"]):
@@ -473,8 +573,8 @@ class AnalyticsEngine:
                 return {
                     "intent": "abandono",
                     "data": data,
-                    "answer": f"La página con mayor tasa de abandono es '{top['page']}' con {top['exit_rate']}% de tasa de salida ({top['exit_count']} salidas de {top['total_visits']} visitas).",
-                    "chart": {"type": "bar", "labels": [d["page"] for d in data], "values": [d["exit_rate"] for d in data], "label": "Tasa de salida (%)"},
+                    "answer": f"La página con mayor tasa de abandono es '{top.get('page_name', top['page'])}' con {top['exit_rate']}% de tasa de salida ({top['exit_count']} salidas de {top['total_visits']} visitas).",
+                    "chart": {"type": "bar", "labels": [d.get('page_name', d['page']) for d in data], "values": [d["exit_rate"] for d in data], "label": "Tasa de salida (%)"},
                 }
 
         if any(w in q for w in ["flujo", "recorrido", "navegación", "secuencia", "camino"]):
