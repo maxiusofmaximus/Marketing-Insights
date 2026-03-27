@@ -132,4 +132,7 @@ marketing-copilot-backend/
 
 ## Equipo
 
+Pedro Abelardo Álvarez Ospina
+Andrés Felipe Soto Quintero
+
 Hackathon Talento Tech 2026 — Reto Caldas

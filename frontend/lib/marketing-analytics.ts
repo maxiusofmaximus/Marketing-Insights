@@ -40,15 +40,18 @@ export type DatasetInfo = {
 export type AskResponse = {
   answer: string;
   interpretation: string;
-  chart_data?: {
-    chart_type: string;
-    labels: string[];
-    values: number[];
-    label?: string;
-  } | null;
+  chart_data?: ChartData | null;
+};
+
+export type ChartData = {
+  chart_type: string;
+  labels: string[];
+  values: number[];
+  label?: string;
 };
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://127.0.0.1:8000";
+const formatPercent = (value: number) => `${value.toFixed(1).replace(/\.0$/, "")}%`;
 
 const toTopPages = (items: Array<Record<string, unknown>>): TopItem[] =>
   items.map((item) => ({
@@ -93,10 +96,10 @@ const buildInsights = (snapshot: AnalyticsSnapshot): string[] => {
     insights.push(`La página con mayor tráfico es ${snapshot.topPages[0].name}.`);
   }
   if (snapshot.abandonment[0]) {
-    insights.push(`Mayor abandono en ${snapshot.abandonment[0].name} (${snapshot.abandonment[0].percentage.toFixed(1)}%).`);
+    insights.push(`Mayor abandono en ${snapshot.abandonment[0].name} (${formatPercent(snapshot.abandonment[0].percentage)}).`);
   }
   if (snapshot.intentRate > 0) {
-    insights.push(`La intención de conversión actual es ${snapshot.intentRate.toFixed(1)}%.`);
+    insights.push(`La intención de conversión actual es ${formatPercent(snapshot.intentRate)}.`);
   }
   return insights;
 };

@@ -12,7 +12,7 @@ interface MarkdownRendererProps {
  * y alinea interpretaciones/recomendaciones con mejor visualización
  */
 export function MarkdownRenderer({ text, className = "" }: MarkdownRendererProps) {
-  const parts = text.split(/(\*\*[^\*]+\*\*|\n)/g);
+  const parts = text.split(/(\*\*[^*]+\*\*|\n)/g);
 
   return (
     <div className={className}>
@@ -40,15 +40,19 @@ export function MarkdownRenderer({ text, className = "" }: MarkdownRendererProps
  * Extrae y formatea secciones de interpretación y recomendación
  */
 export function extractInterpretationSections(text: string) {
-  const interpretationRegex = /\*\*Interpretación\*\*:?\s*(.+?)(?=\*\*|$)/s;
-  const recommendationRegex = /\*\*Recomendación accionable\*\*:?\s*(.+?)(?=\*\*|$)/s;
+  const interpretationRegex = /(?:\*\*)?Interpretación(?:\*\*)?:?\s*([\s\S]*?)(?=(?:\*\*)?Recomendación accionable(?:\*\*)?:?|$)/i;
+  const recommendationRegex = /(?:\*\*)?Recomendación accionable(?:\*\*)?:?\s*([\s\S]*?)$/i;
 
   const interpretationMatch = text.match(interpretationRegex);
   const recommendationMatch = text.match(recommendationRegex);
+  const formatSection = (value: string | undefined) => {
+    if (!value) return null;
+    return value.replace(/\s*(\d+\)\s)/g, "\n\n$1").trim();
+  };
 
   return {
-    interpretation: interpretationMatch ? interpretationMatch[1].trim() : null,
-    recommendation: recommendationMatch ? recommendationMatch[1].trim() : null,
+    interpretation: formatSection(interpretationMatch?.[1]),
+    recommendation: formatSection(recommendationMatch?.[1]),
     rawText: text,
   };
 }

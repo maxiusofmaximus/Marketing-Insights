@@ -7,13 +7,16 @@ import {
   getDatasetInfo,
   uploadDataset,
   type AnalyticsSnapshot,
+  type ChartData,
   type DatasetInfo
 } from "@/lib/marketing-analytics";
 import { MarkdownRenderer, InterpretationCard, extractInterpretationSections } from "@/components/markdown-renderer";
+import { ChatChart } from "@/components/chat-chart";
 
 type ChatMessage = {
   role: "user" | "copilot";
   text: string;
+  chartData?: ChartData | null;
 };
 
 const suggestedQuestions = [
@@ -23,7 +26,7 @@ const suggestedQuestions = [
   "¿Qué tan fuerte es la intención de conversión?"
 ];
 
-const formatPercent = (value: number) => `${value.toFixed(1)}%`;
+const formatPercent = (value: number) => `${value.toFixed(1).replace(/\.0$/, "")}%`;
 
 const emptyAnalytics: AnalyticsSnapshot = {
   totalEvents: 0,
@@ -65,7 +68,7 @@ export function MarketingCopilot() {
       {
         title: "Punto crítico de abandono",
         value: analytics.abandonment[0]
-          ? `${analytics.abandonment[0].name} (${formatPercent(analytics.abandonment[0].percentage)})`
+          ? formatPercent(analytics.abandonment[0].percentage)
           : "Sin datos"
       }
     ],
@@ -105,7 +108,10 @@ export function MarketingCopilot() {
     setInput("");
     try {
       const response = await askCopilot(question);
-      setChat((prev) => [...prev, { role: "copilot", text: response.interpretation || response.answer }]);
+      setChat((prev) => [
+        ...prev,
+        { role: "copilot", text: response.interpretation || response.answer, chartData: response.chart_data }
+      ]);
     } catch (err) {
       setChat((prev) => [...prev, { role: "copilot", text: "No pude consultar el backend en este momento." }]);
       setError(err instanceof Error ? err.message : "Error al consultar el backend.");
@@ -120,7 +126,10 @@ export function MarketingCopilot() {
     setChat((prev) => [...prev, { role: "user", text: question }]);
     try {
       const response = await askCopilot(question);
-      setChat((prev) => [...prev, { role: "copilot", text: response.interpretation || response.answer }]);
+      setChat((prev) => [
+        ...prev,
+        { role: "copilot", text: response.interpretation || response.answer, chartData: response.chart_data }
+      ]);
     } catch (err) {
       setChat((prev) => [...prev, { role: "copilot", text: "No pude consultar el backend en este momento." }]);
       setError(err instanceof Error ? err.message : "Error al consultar el backend.");
@@ -251,11 +260,14 @@ export function MarketingCopilot() {
                   className={`message ${message.role === "user" ? "message-user" : "message-copilot"}`}
                 >
                   {message.role === "copilot" ? (
-                    <InterpretationCard
-                      interpretation={sections.interpretation}
-                      recommendation={sections.recommendation}
-                      rawText={message.text}
-                    />
+                    <>
+                      <InterpretationCard
+                        interpretation={sections.interpretation}
+                        recommendation={sections.recommendation}
+                        rawText={message.text}
+                      />
+                      {message.chartData ? <ChatChart data={message.chartData} /> : null}
+                    </>
                   ) : (
                     <MarkdownRenderer text={message.text} />
                   )}

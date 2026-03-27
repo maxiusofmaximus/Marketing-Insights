@@ -233,13 +233,33 @@ a {
   border: 1px solid var(--line);
   border-radius: 12px;
   background: rgba(5, 7, 15, 0.35);
-  flex: 1;
+  height: 420px;
   overflow-y: auto;
   padding: 10px;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-height: 300px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(141, 247, 216, 0.5) rgba(255, 255, 255, 0.04);
+}
+
+.chat-box::-webkit-scrollbar {
+  width: 10px;
+}
+
+.chat-box::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 999px;
+}
+
+.chat-box::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(141, 247, 216, 0.8), rgba(113, 191, 255, 0.8));
+  border-radius: 999px;
+  border: 2px solid rgba(5, 7, 15, 0.35);
+}
+
+.chat-box::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(141, 247, 216, 1), rgba(113, 191, 255, 1));
 }
 
 .message {
@@ -338,6 +358,10 @@ a {
     width: 100%;
   }
 
+  .chat-box {
+    height: 360px;
+  }
+
   .metric-row {
     flex-direction: column;
     gap: 2px;
@@ -345,6 +369,11 @@ a {
 
   .metric-row strong {
     white-space: normal;
+  }
+
+  .chat-chart-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 
@@ -410,6 +439,40 @@ a {
 .section-content strong {
   font-weight: 700;
   color: var(--accent);
+}
+
+.chat-chart {
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(7, 11, 22, 0.7);
+  padding: 10px;
+}
+
+.chat-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.chat-chart-header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.chat-chart-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.chat-chart-svg {
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .additional-context {
