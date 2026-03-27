@@ -15,7 +15,6 @@ defaults:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -44,13 +43,3 @@ jobs:
         with:
           name: nextjs-build
           path: .next/standalone
-          needs: build
-steps:
-  - name: Deploy to GitHub Pages
-    id: deployment
-    uses: actions/deploy-pages@v4
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
