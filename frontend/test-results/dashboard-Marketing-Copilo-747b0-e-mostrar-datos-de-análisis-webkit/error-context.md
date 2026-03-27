@@ -1,0 +1,93 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - paragraph [ref=e5]: Reto 1 · CloudLabs
+        - heading "Marketing Copilot basado en comportamiento web" [level=1] [ref=e6]
+        - paragraph [ref=e7]: Carga datos de eventos, calcula métricas de navegación/abandono y consulta insights en lenguaje natural.
+      - generic [ref=e8]:
+        - paragraph [ref=e9]: Dataset activo
+        - paragraph [ref=e10]: Dataset activo (67414 registros, 47997 sesiones)
+        - generic [ref=e11]:
+          - generic [ref=e12] [cursor=pointer]: CSV sesiones
+          - button "CSV sesiones"
+          - generic [ref=e13] [cursor=pointer]: CSV métricas
+          - button "CSV métricas"
+          - button "Actualizar dataset" [disabled] [ref=e14]
+        - paragraph [ref=e15]: Selecciona CSV de sesiones para actualizar.
+        - paragraph [ref=e16]: CSV de métricas es opcional.
+        - paragraph [ref=e17]: "El modelo no se reentrena al cambiar CSV: solo se recargan datos para análisis."
+    - generic [ref=e18]:
+      - article [ref=e19]:
+        - paragraph [ref=e20]: Sesiones analizadas
+        - heading "47997" [level=3] [ref=e21]
+      - article [ref=e22]:
+        - paragraph [ref=e23]: Eventos procesados
+        - heading "67414" [level=3] [ref=e24]
+      - article [ref=e25]:
+        - paragraph [ref=e26]: Intención de conversión
+        - heading "42.4%" [level=3] [ref=e27]
+      - article [ref=e28]:
+        - paragraph [ref=e29]: Punto crítico de abandono
+        - heading "/curriculum/country-list/detail-country/17557/tennessee/detail-curriculum/17558/science/detail-grade/17582/physics%20ii (100.0%)" [level=3] [ref=e30]
+    - generic [ref=e31]:
+      - article [ref=e32]:
+        - generic [ref=e33]:
+          - heading "Interfaz conversacional" [level=2] [ref=e34]
+          - paragraph [ref=e35]: Respuestas automáticas con foco de negocio.
+        - generic [ref=e36]:
+          - button "¿Cuál es la página con mayor abandono?" [ref=e37] [cursor=pointer]
+          - button "¿Cuál fue el producto más consultado?" [ref=e38] [cursor=pointer]
+          - button "¿Qué flujo de navegación es más frecuente?" [ref=e39] [cursor=pointer]
+          - button "¿Qué tan fuerte es la intención de conversión?" [ref=e40] [cursor=pointer]
+        - article [ref=e42]: Soy tu Marketing Copilot. Ya estoy conectado al backend con el dataset cargado y listo para responder.
+        - generic [ref=e43]:
+          - textbox "Pregunta algo del comportamiento web..." [ref=e44]
+          - button "Consultar" [disabled] [ref=e45]
+      - article [ref=e46]:
+        - generic [ref=e47]:
+          - heading "Motor analítico" [level=2] [ref=e48]
+          - paragraph [ref=e49]: Métricas mínimas + insights adicionales.
+        - generic [ref=e50]:
+          - heading "Top páginas" [level=3] [ref=e51]
+          - paragraph [ref=e52]:
+            - generic [ref=e53]: /
+            - strong [ref=e54]: 37481 · 55.6%
+          - paragraph [ref=e55]:
+            - generic [ref=e56]: /request-demo
+            - strong [ref=e57]: 25399 · 37.7%
+          - paragraph [ref=e58]:
+            - generic [ref=e59]: /elementary-school
+            - strong [ref=e60]: 1299 · 1.9%
+          - paragraph [ref=e61]:
+            - generic [ref=e62]: /downloads
+            - strong [ref=e63]: 335 · 0.5%
+          - paragraph [ref=e64]:
+            - generic [ref=e65]: /middle-school
+            - strong [ref=e66]: 251 · 0.4%
+        - generic [ref=e67]:
+          - heading "Top productos" [level=3] [ref=e68]
+          - paragraph [ref=e69]: Sin productos registrados.
+        - generic [ref=e70]:
+          - heading "Flujos más frecuentes" [level=3] [ref=e71]
+          - paragraph [ref=e72]:
+            - generic [ref=e73]: / → /elementary-school → /
+            - strong [ref=e74]: 59 sesiones · 9.3%
+          - paragraph [ref=e75]:
+            - generic [ref=e76]: / → /request-demo → /
+            - strong [ref=e77]: 57 sesiones · 9.0%
+          - paragraph [ref=e78]:
+            - generic [ref=e79]: /request-demo → /elementary-school → /request-demo
+            - strong [ref=e80]: 45 sesiones · 7.1%
+        - generic [ref=e81]:
+          - heading "Insights adicionales propuestos" [level=3] [ref=e82]
+          - paragraph [ref=e83]: La página con mayor tráfico es /.
+          - paragraph [ref=e84]: Mayor abandono en /curriculum/country-list/detail-country/17557/tennessee/detail-curriculum/17558/science/detail-grade/17582/physics%20ii (100.0%).
+          - paragraph [ref=e85]: La intención de conversión actual es 42.4%.
+  - button "Open Next.js Dev Tools" [ref=e91] [cursor=pointer]:
+    - img [ref=e92]
+  - alert [ref=e97]
+```

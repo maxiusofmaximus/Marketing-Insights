@@ -1,0 +1,64 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]:
+        - paragraph [ref=e5]: Reto 1 · CloudLabs
+        - heading "Marketing Copilot basado en comportamiento web" [level=1] [ref=e6]
+        - paragraph [ref=e7]: Carga datos de eventos, calcula métricas de navegación/abandono y consulta insights en lenguaje natural.
+      - generic [ref=e8]:
+        - paragraph [ref=e9]: Dataset activo
+        - paragraph [ref=e10]: Cargando dataset...
+        - generic [ref=e11]:
+          - generic [ref=e12] [cursor=pointer]: CSV sesiones
+          - button "CSV sesiones"
+          - generic [ref=e13] [cursor=pointer]: CSV métricas
+          - button "CSV métricas"
+          - button "Actualizar dataset" [disabled] [ref=e14]
+        - paragraph [ref=e15]: Selecciona CSV de sesiones para actualizar.
+        - paragraph [ref=e16]: CSV de métricas es opcional.
+        - paragraph [ref=e17]: "El modelo no se reentrena al cambiar CSV: solo se recargan datos para análisis."
+    - paragraph [ref=e18]: Cargando datos del backend...
+    - generic [ref=e19]:
+      - article [ref=e20]:
+        - paragraph [ref=e21]: Sesiones analizadas
+        - heading "0" [level=3] [ref=e22]
+      - article [ref=e23]:
+        - paragraph [ref=e24]: Eventos procesados
+        - heading "0" [level=3] [ref=e25]
+      - article [ref=e26]:
+        - paragraph [ref=e27]: Intención de conversión
+        - heading "0.0%" [level=3] [ref=e28]
+      - article [ref=e29]:
+        - paragraph [ref=e30]: Punto crítico de abandono
+        - heading "Sin datos" [level=3] [ref=e31]
+    - generic [ref=e32]:
+      - article [ref=e33]:
+        - generic [ref=e34]:
+          - heading "Interfaz conversacional" [level=2] [ref=e35]
+          - paragraph [ref=e36]: Respuestas automáticas con foco de negocio.
+        - generic [ref=e37]:
+          - button "¿Cuál es la página con mayor abandono?" [disabled] [ref=e38]
+          - button "¿Cuál fue el producto más consultado?" [disabled] [ref=e39]
+          - button "¿Qué flujo de navegación es más frecuente?" [disabled] [ref=e40]
+          - button "¿Qué tan fuerte es la intención de conversión?" [disabled] [ref=e41]
+        - article [ref=e43]: Soy tu Marketing Copilot. Ya estoy conectado al backend con el dataset cargado y listo para responder.
+        - generic [ref=e44]:
+          - textbox "Primero carga un dataset" [ref=e45]
+          - button "Consultar" [disabled] [ref=e46]
+      - article [ref=e47]:
+        - generic [ref=e48]:
+          - heading "Motor analítico" [level=2] [ref=e49]
+          - paragraph [ref=e50]: Métricas mínimas + insights adicionales.
+        - heading "Top páginas" [level=3] [ref=e52]
+        - generic [ref=e53]:
+          - heading "Top productos" [level=3] [ref=e54]
+          - paragraph [ref=e55]: Sin productos registrados.
+        - heading "Flujos más frecuentes" [level=3] [ref=e57]
+        - heading "Insights adicionales propuestos" [level=3] [ref=e59]
+  - button "Open Next.js Dev Tools" [ref=e65] [cursor=pointer]:
+    - img [ref=e66]
+  - alert [ref=e70]
+```
