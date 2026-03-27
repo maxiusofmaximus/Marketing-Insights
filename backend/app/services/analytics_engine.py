@@ -20,6 +20,7 @@ import pandas as pd
 import numpy as np
 from typing import Optional
 import re
+from urllib.parse import urlparse, unquote
 
 
 class AnalyticsEngine:
@@ -50,8 +51,15 @@ class AnalyticsEngine:
         """
         if not page_url or not isinstance(page_url, str):
             return "Página desconocida"
-        
-        url = page_url.strip().lower()
+
+        raw_url = page_url.strip()
+        parsed = urlparse(raw_url)
+        url = (parsed.path if (parsed.scheme or parsed.netloc) else raw_url).strip().lower()
+        if not url:
+            return "Inicio"
+        if url != "/":
+            url = url.rstrip("/")
+        url = unquote(url)
         
         # Extraer información útil de URLs complejas
         # Si es curriculum detail, extraer el nombre del curso
@@ -70,44 +78,42 @@ class AnalyticsEngine:
         # URLs comunes de marketing
         mappings = {
             "/pricing": "Precios",
-            "/pricing/": "Precios",
             "/contact": "Contacto",
-            "/contact/": "Contacto",
             "/signup": "Registrarse",
-            "/signup/": "Registrarse",
+            "/register": "Register",
             "/login": "Iniciar sesión",
-            "/login/": "Iniciar sesión",
             "/demo": "Demo",
-            "/demo/": "Demo",
+            "/request-demo": "Request Demo",
+            "/request_demo": "Request Demo",
             "/products": "Productos",
-            "/products/": "Productos",
             "/curriculum": "Currículum",
-            "/curriculum/": "Catálogo de cursos",
             "/courses": "Cursos",
-            "/courses/": "Cursos",
             "/home": "Inicio",
-            "/home/": "Inicio",
+            "/inicio": "Inicio",
+            "/downloads": "Downloads",
+            "/download": "Downloads",
+            "/elementary-school": "Elementary School",
+            "/middle-school": "Middle School",
             "": "Inicio",
             "/": "Inicio",
             "/faq": "Preguntas frecuentes",
-            "/faq/": "Preguntas frecuentes",
             "/help": "Ayuda",
-            "/help/": "Ayuda",
         }
-        
-        # Buscar coincidencia exacta o parcial
-        for pattern, label in mappings.items():
-            if url == pattern or url == pattern.rstrip("/"):
-                return label
-        
-        # Si no hay coincidencia, crear un nombre legible
-        # Tomar el primer segmento significativo
+
+        if url in mappings:
+            return mappings[url]
+
         parts = [p for p in url.split('/') if p and not p.isdigit() and p != 'detail-' and 'id' not in p]
+        parts = [p for p in parts if not re.fullmatch(r"[a-f0-9]{8,}", p)]
+        if parts and parts[0] in {"register", "signup"}:
+            return "Register"
         if parts:
-            # Tomar el primer 2-3 segmentos útiles
-            readable = " → ".join(p.replace('%20', ' ').replace('-', ' ').title() for p in parts[:3])
+            readable = " → ".join(
+                p.replace("%20", " ").replace("_", " ").replace("-", " ").title()
+                for p in parts[:3]
+            )
             return readable if len(readable) < 50 else readable[:47] + "..."
-        
+
         return page_url[:50] + "..." if len(page_url) > 50 else page_url
 
 

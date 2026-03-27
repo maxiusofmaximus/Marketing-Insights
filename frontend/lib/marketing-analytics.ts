@@ -55,7 +55,7 @@ const formatPercent = (value: number) => `${value.toFixed(1).replace(/\.0$/, "")
 
 const toTopPages = (items: Array<Record<string, unknown>>): TopItem[] =>
   items.map((item) => ({
-    name: String(item.page ?? ""),
+    name: String(item.page_name ?? item.page ?? ""),
     value: Number(item.views ?? 0),
     percentage: Number(item.percentage ?? 0)
   }));
@@ -69,7 +69,7 @@ const toTopProducts = (items: Array<Record<string, unknown>>): TopItem[] =>
 
 const toAbandonment = (items: Array<Record<string, unknown>>): TopItem[] =>
   items.map((item) => ({
-    name: String(item.page ?? ""),
+    name: String(item.page_name ?? item.page ?? ""),
     value: Number(item.exit_count ?? 0),
     percentage: Number(item.exit_rate ?? 0)
   }));

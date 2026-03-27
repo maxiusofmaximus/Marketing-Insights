@@ -14,9 +14,56 @@ type Datum = {
   value: number;
 };
 
+const titleize = (value: string) =>
+  value
+    .toLowerCase()
+    .split(" ")
+    .filter(Boolean)
+    .map((token) => token.charAt(0).toUpperCase() + token.slice(1))
+    .join(" ");
+
+const prettifyLabel = (raw: string) => {
+  let value = raw.trim();
+  if (!value || value === "/") return "Inicio";
+  value = value.split("?")[0].split("#")[0];
+  if (value.startsWith("/")) {
+    const parts = value
+      .split("/")
+      .filter(Boolean)
+      .filter((part) => !/^\d+$/.test(part))
+      .filter((part) => !/^[a-f0-9]{8,}$/i.test(part));
+    if (parts.length === 0) return "Inicio";
+    const first = parts[0].toLowerCase();
+    if (first === "request-demo" || first === "request_demo" || first === "demo") return "Request Demo";
+    if (first === "register" || first === "signup") return "Register";
+    return titleize(first.replace(/[_-]+/g, " "));
+  }
+  return titleize(value.replace(/[_-]+/g, " "));
+};
+
+const wrapLabel = (label: string, maxChars: number, maxLines: number) => {
+  const words = label.split(" ").filter(Boolean);
+  const lines: string[] = [];
+  let current = "";
+  for (const word of words) {
+    const chunk = word.length > maxChars ? word.slice(0, maxChars) : word;
+    const candidate = current ? `${current} ${chunk}` : chunk;
+    if (candidate.length <= maxChars) {
+      current = candidate;
+      continue;
+    }
+    if (current) lines.push(current);
+    current = chunk;
+    if (lines.length >= maxLines - 1) break;
+  }
+  if (current && lines.length < maxLines) lines.push(current);
+  if (lines.length === 0) return [label.slice(0, maxChars)];
+  return lines.slice(0, maxLines);
+};
+
 const sanitize = (data: ChartData): Datum[] =>
   data.labels.map((label, index) => ({
-    label,
+    label: prettifyLabel(String(label)),
     value: Number.isFinite(data.values[index]) ? Number(data.values[index]) : 0
   }));
 
@@ -135,11 +182,16 @@ export function ChatChart({ data }: ChatChartProps) {
           const barHeight = Math.max((row.value / maxValue) * chartHeight, 2);
           const x = left + index * (barWidth + gap);
           const y = top + chartHeight - barHeight;
+          const labelLines = wrapLabel(row.label, 14, 2);
           return (
             <g key={`${row.label}-${index}`}>
               <rect x={x} y={y} width={barWidth} height={barHeight} fill="#71bfff" rx="4" />
               <text x={x + barWidth / 2} y={top + chartHeight + 16} textAnchor="middle" fill="#b0bfd7" fontSize="10">
-                {row.label.slice(0, 16)}
+                {labelLines.map((line, lineIndex) => (
+                  <tspan key={`${row.label}-${line}-${lineIndex}`} x={x + barWidth / 2} dy={lineIndex === 0 ? 0 : 10}>
+                    {line}
+                  </tspan>
+                ))}
               </text>
               <text x={x + barWidth / 2} y={y - 6} textAnchor="middle" fill="#8df7d8" fontSize="10">
                 {row.value.toFixed(1).replace(/\.0$/, "")}
@@ -157,7 +209,7 @@ export function ChatChart({ data }: ChatChartProps) {
           const points = rows.map((row, index) => {
             const x = left + index * step;
             const y = top + chartHeight - (row.value / maxValue) * chartHeight;
-            return { x, y, row };
+            return { x, y, row, labelLines: wrapLabel(row.label, 12, 2) };
           });
           return (
             <g>
@@ -173,7 +225,11 @@ export function ChatChart({ data }: ChatChartProps) {
                 <g key={`${point.row.label}-${index}`}>
                   <circle cx={point.x} cy={point.y} r="4" fill="#8df7d8" />
                   <text x={point.x} y={top + chartHeight + 16} textAnchor="middle" fill="#b0bfd7" fontSize="10">
-                    {point.row.label.slice(0, 12)}
+                    {point.labelLines.map((line, lineIndex) => (
+                      <tspan key={`${point.row.label}-${line}-${lineIndex}`} x={point.x} dy={lineIndex === 0 ? 0 : 10}>
+                        {line}
+                      </tspan>
+                    ))}
                   </text>
                 </g>
               ))}
